@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AegisNet AI - SIH26155 Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        h1 { text-align: center; color: #333; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 5px; }
+        .team-name { text-align: center; font-weight: bold; margin-bottom: 25px; color: #444; }
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        .summary, .analyzer, .device-card {
+            background: white; padding: 20px; border-radius: 8px;
+            margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .vendor-control { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; font-weight: bold; }
+
+        textarea {
+            width: 100%; min-height: 180px; box-sizing: border-box;
+            padding: 12px; font-family: monospace; font-size: 14px;
+            border: 1px solid #ccc; border-radius: 6px; resize: vertical;
+        }
+
+        .analyze-button {
+            margin-top: 15px; padding: 12px 24px; border: none;
+            border-radius: 6px; background: #007bff; color: white;
+            font-size: 16px; font-weight: bold; cursor: pointer;
+        }
+        .analyze-button:hover { background: #0056b3; }
+
+        .analysis-result { display: none; margin-top: 20px; }
+        .compliance-score { font-size: 22px; font-weight: bold; margin-bottom: 10px; }
+
+        .device-card { cursor: pointer; border-left: 5px solid #ccc; padding: 15px; }
+        .device-card.green { border-left-color: #28a745; }
+        .device-card.yellow { border-left-color: #ffc107; }
+        .device-card.red { border-left-color: #dc3545; }
+        .device-header { display: flex; justify-content: space-between; align-items: center; }
+        .device-name { font-weight: bold; font-size: 18px; }
+        .device-vendor { color: #666; font-size: 14px; }
+        .device-compliance { font-weight: bold; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #f8f9fa; }
+        .findings-table { display: none; }
+
+        .status-pass { color: #28a745; font-weight: bold; }
+        .status-fail { color: #dc3545; font-weight: bold; }
+        .severity-HIGH { color: #dc3545; font-weight: bold; }
+        .severity-MEDIUM { color: #d39e00; font-weight: bold; }
+        .error-message { color: #dc3545; margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🛡️ AegisNet AI</h1>
+    <div class="subtitle">AI-Driven Multi-Vendor Network Security Compliance Auditor</div>
+    <div class="team-name">A SecureNova Innovation | SIH26155</div>
+
+    <!-- SUMMARY -->
+    <div class="summary" id="summary">Loading summary...</div>
+
+    <!-- MULTI-VENDOR ANALYZER -->
+    <div class="analyzer">
+        <h2>🔍 Multi-Vendor Configuration Analyzer</h2>
+        <div class="vendor-control">
+            <label><strong>🤖 Vendor Detection:</strong></label>
+            <span>Automatic</span>
+        </div>
+
+        <textarea id="config-input"></textarea>
+        <br>
+        <button class="analyze-button" id="analyze-button" onclick="analyzeConfiguration()">
+            🔍 Analyze Security Posture
+        </button>
+        <div id="analysis-error" class="error-message"></div>
+
+        <div class="analysis-result" id="analysis-result">
+            <div class="compliance-score" id="analysis-score"></div>
+            <div id="analysis-vendor"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Control</th>
+                        <th>Status</th>
+                        <th>Severity</th>
+                        <th>Reason</th>
+                        <th>Remediation</th>
+                    </tr>
+                </thead>
+                <tbody id="analysis-findings"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PREDEFINED MONITORED FLEET -->
+    <div id="devices-list">Loading devices...</div>
+</div>
+
+<script>
+const API_BASE = "http://127.0.0.1:8000";
+
+const CISCO_SAMPLE = `hostname Core-Router
+ip http server
+line vty 0 4
+ transport input telnet ssh
+ip ssh version 2
+security passwards min-length 8`;
+
+const JUNIPER_SAMPLE = `set system host-name Edge-Firewall
+set system services telnet
+set system services ssh
+set system services web-management http`;
+
+
+
+async function loadSummary() {
+    try {
+        const res = await fetch(`${API_BASE}/summary`);
+        const data = await res.json();
+        document.getElementById("summary").innerHTML = `
+            <strong>📊 Network Summary:</strong> Total Devices: ${data.total_devices} | Compliant: ${data.compliant_devices} | Average Compliance: ${data.average_compliance}%
+        `;
+    } catch {
+        document.getElementById("summary").innerHTML = "⚠️ Backend not running. Start FastAPI server.";
+    }
+}
+
+async function loadDevices() {
+    try {
+        const res = await fetch(`${API_BASE}/devices`);
+        const devices = await res.json();
+        let html = "";
+        devices.forEach(device => {
+            html += `
+                <div class="device-card ${device.status}" onclick="toggleFindings(${device.id})">
+                    <div class="device-header">
+                        <div>
+                            <div class="device-name">${device.name}</div>
+                            <div class="device-vendor">${device.vendor}</div>
+                        </div>
+                        <div class="device-compliance">Compliance: ${device.compliance}%</div>
+                    </div>
+                    <table class="findings-table" id="findings-${device.id}">
+                        <thead>
+                            <tr><th>Control</th><th>Status</th><th>Severity</th><th>Reason</th><th>Remediation</th></tr>
+                        </thead>
+                        <tbody>
+                            ${device.findings.map(f => `
+                                <tr>
+                                    <td>${f.control}</td>
+                                    <td class="${f.status === 'PASS' ? 'status-pass' : 'status-fail'}">${f.status}</td>
+                                    <td class="severity-${f.severity}">${f.severity}</td>
+                                    <td>${f.reason}</td>
+                                    <td><code>${f.remediation}</code></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        });
+        document.getElementById("devices-list").innerHTML = html;
+    } catch {
+        document.getElementById("devices-list").innerHTML = "⚠️ Backend not running.";
+    }
+}
+
+function toggleFindings(deviceId) {
+    const table = document.getElementById(`findings-${deviceId}`);
+    table.style.display = table.style.display === "table" ? "none" : "table";
+}
+
+async function analyzeConfiguration() {
+    const config = document.getElementById("config-input").value.trim();
+    const resultBox = document.getElementById("analysis-result");
+    const errorBox = document.getElementById("analysis-error");
+
+    errorBox.innerHTML = "";
+
+    if (!config) {
+        errorBox.innerHTML = "⚠️ Paste configuration before running analysis.";
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/analyze/auto`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ config })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.detail || "Analysis failed");
+        }
+
+        if (data.vendor === "Unknown / Unsupported") {
+            resultBox.style.display = "block";
+
+            document.getElementById("analysis-score").innerHTML =
+                "📊 Compliance Score: N/A";
+
+            document.getElementById("analysis-vendor").innerHTML =
+                "🤖 <strong>Detected Vendor:</strong> Unknown / Unsupported";
+
+            document.getElementById("analysis-findings").innerHTML = `
+                <tr>
+                    <td colspan="5">
+                        ⚠️ AegisNet could not identify a supported vendor.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        resultBox.style.display = "block";
+
+        document.getElementById("analysis-score").innerHTML =
+            `📊 Compliance Score: ${data.compliance}%`;
+
+        document.getElementById("analysis-vendor").innerHTML = `
+            🤖 <strong>Detected Vendor:</strong> ${data.detected_vendor || data.vendor}
+            &nbsp; | &nbsp;
+            <strong>Confidence:</strong> ${data.confidence || "N/A"}
+        `;
+
+        document.getElementById("analysis-findings").innerHTML =
+            data.findings.map(f => `
+                <tr>
+                    <td>${f.control}</td>
+                    <td class="${f.status === 'PASS' ? 'status-pass' : 'status-fail'}">
+                        ${f.status}
+                    </td>
+                    <td class="severity-${f.severity}">
+                        ${f.severity}
+                    </td>
+                    <td>${f.reason}</td>
+                    <td><code>${f.remediation}</code></td>
+                </tr>
+            `).join("");
+
+    } catch (err) {
+        console.error(err);
+
+        errorBox.innerHTML =
+            "⚠️ Analysis failed. Check FastAPI server and /analyze/auto endpoint.";
+
+        resultBox.style.display = "none";
+    }
+}
+
+loadSummary();
+loadDevices();
+</script>
+</body>
+</html>

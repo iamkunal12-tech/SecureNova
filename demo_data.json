@@ -1,0 +1,99 @@
+[
+  {
+    "id": 1,
+    "name": "Core-Router-Cisco",
+    "vendor": "Cisco",
+    "compliance": 60,
+    "status": "red",
+    "findings": [
+      {
+        "control": "Telnet disabled",
+        "status": "FAIL",
+        "severity": "HIGH",
+        "reason": "Telnet enabled hai, credentials clear text mein ja rahe hain.",
+        "remediation": "no ip telnet server"
+      },
+      {
+        "control": "HTTP disabled",
+        "status": "FAIL",
+        "severity": "HIGH",
+        "reason": "HTTP management interface enabled hai; sirf HTTPS use hona chahiye.",
+        "remediation": "no ip http server"
+      },
+      {
+        "control": "SSH enabled",
+        "status": "PASS",
+        "severity": "MEDIUM",
+        "reason": "",
+        "remediation": ""
+      },
+      {
+        "control": "Minimum password length >= 12",
+        "status": "FAIL",
+        "severity": "MEDIUM",
+        "reason": "Password policy weak hai, 12 characters se kam allow kar raha hai.",
+        "remediation": "security passwords min-length 12"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Edge-Firewall-Juniper",
+    "vendor": "Juniper",
+    "compliance": 80,
+    "status": "yellow",
+    "findings": [
+      {
+        "control": "Telnet disabled",
+        "status": "PASS",
+        "severity": "HIGH",
+        "reason": "",
+        "remediation": ""
+      },
+      {
+        "control": "Remote logging enabled",
+        "status": "FAIL",
+        "severity": "MEDIUM",
+        "reason": "Remote syslog server configure nahi hai, logs sirf local hain.",
+        "remediation": "set system syslog host <syslog-ip>"
+      },
+      {
+        "control": "SSH enabled",
+        "status": "PASS",
+        "severity": "MEDIUM",
+        "reason": "",
+        "remediation": ""
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Access-Switch-Cisco",
+    "vendor": "Cisco",
+    "compliance": 95,
+    "status": "green",
+    "findings": [
+      {
+        "control": "Telnet disabled",
+        "status": "PASS",
+        "severity": "HIGH",
+        "reason": "",
+        "remediation": ""
+      },
+      {
+        "control": "HTTP disabled",
+        "status": "PASS",
+        "severity": "HIGH",
+        "reason": "",
+        "remediation": ""
+      },
+      {
+        "control": "SSH enabled",
+        "status": "PASS",
+        "severity": "MEDIUM",
+        "reason": "",
+        "remediation": ""
+      }
+    ]
+  }
+]
