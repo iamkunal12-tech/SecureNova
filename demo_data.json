@@ -3,36 +3,36 @@
     "id": 1,
     "name": "Core-Router-Cisco",
     "vendor": "Cisco",
-    "compliance": 60,
+    "compliance": 25,
     "status": "red",
     "findings": [
       {
-        "control": "Telnet disabled",
+        "title": "Telnet Disabled",
         "status": "FAIL",
-        "severity": "HIGH",
-        "reason": "Telnet enabled hai, credentials clear text mein ja rahe hain.",
-        "remediation": "no ip telnet server"
+        "severity": "High",
+        "reason": "Telnet is enabled on the VTY lines.",
+        "recommended_config": "no transport input telnet"
       },
       {
-        "control": "HTTP disabled",
+        "title": "HTTP Server Disabled",
         "status": "FAIL",
-        "severity": "HIGH",
-        "reason": "HTTP management interface enabled hai; sirf HTTPS use hona chahiye.",
-        "remediation": "no ip http server"
+        "severity": "High",
+        "reason": "The Cisco HTTP server is enabled.",
+        "recommended_config": "no ip http server"
       },
       {
-        "control": "SSH enabled",
+        "title": "SSH Enabled",
         "status": "PASS",
-        "severity": "MEDIUM",
-        "reason": "",
-        "remediation": ""
+        "severity": "Low",
+        "reason": "SSH version 2 is enabled.",
+        "recommended_config": "ip ssh version 2"
       },
       {
-        "control": "Minimum password length >= 12",
+        "title": "Minimum Password Length",
         "status": "FAIL",
-        "severity": "MEDIUM",
-        "reason": "Password policy weak hai, 12 characters se kam allow kar raha hai.",
-        "remediation": "security passwords min-length 12"
+        "severity": "Medium",
+        "reason": "Minimum password length is below the required 12 characters.",
+        "recommended_config": "security passwords min-length 12"
       }
     ]
   },
@@ -40,29 +40,29 @@
     "id": 2,
     "name": "Edge-Firewall-Juniper",
     "vendor": "Juniper",
-    "compliance": 80,
-    "status": "yellow",
+    "compliance": 67,
+    "status": "red",
     "findings": [
       {
-        "control": "Telnet disabled",
+        "title": "Telnet Disabled",
         "status": "PASS",
-        "severity": "HIGH",
-        "reason": "",
-        "remediation": ""
+        "severity": "Low",
+        "reason": "Telnet service is disabled.",
+        "recommended_config": "delete system services telnet"
       },
       {
-        "control": "Remote logging enabled",
+        "title": "Remote Logging",
         "status": "FAIL",
-        "severity": "MEDIUM",
-        "reason": "Remote syslog server configure nahi hai, logs sirf local hain.",
-        "remediation": "set system syslog host <syslog-ip>"
+        "severity": "Medium",
+        "reason": "Remote syslog configuration is missing.",
+        "recommended_config": "set system syslog host <syslog-server>"
       },
       {
-        "control": "SSH enabled",
+        "title": "SSH Enabled",
         "status": "PASS",
-        "severity": "MEDIUM",
-        "reason": "",
-        "remediation": ""
+        "severity": "Low",
+        "reason": "SSH service is enabled.",
+        "recommended_config": "set system services ssh"
       }
     ]
   },
@@ -70,29 +70,177 @@
     "id": 3,
     "name": "Access-Switch-Cisco",
     "vendor": "Cisco",
-    "compliance": 95,
+    "compliance": 100,
     "status": "green",
     "findings": [
       {
-        "control": "Telnet disabled",
+        "title": "Telnet Disabled",
         "status": "PASS",
-        "severity": "HIGH",
-        "reason": "",
-        "remediation": ""
+        "severity": "Low",
+        "reason": "Telnet access is disabled.",
+        "recommended_config": "no transport input telnet"
       },
       {
-        "control": "HTTP disabled",
+        "title": "HTTP Server Disabled",
         "status": "PASS",
-        "severity": "HIGH",
-        "reason": "",
-        "remediation": ""
+        "severity": "Low",
+        "reason": "Cisco HTTP server is disabled.",
+        "recommended_config": "no ip http server"
       },
       {
-        "control": "SSH enabled",
+        "title": "SSH Enabled",
         "status": "PASS",
-        "severity": "MEDIUM",
-        "reason": "",
-        "remediation": ""
+        "severity": "Low",
+        "reason": "SSH version 2 is enabled.",
+        "recommended_config": "ip ssh version 2"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Branch-Router-Cisco",
+    "vendor": "Cisco",
+    "compliance": 25,
+    "status": "red",
+    "findings": [
+      {
+        "title": "Telnet Disabled",
+        "status": "FAIL",
+        "severity": "High",
+        "reason": "Telnet is enabled on the VTY lines.",
+        "recommended_config": "no transport input telnet"
+      },
+      {
+        "title": "HTTP Server Disabled",
+        "status": "FAIL",
+        "severity": "High",
+        "reason": "The Cisco HTTP server is enabled.",
+        "recommended_config": "no ip http server"
+      },
+      {
+        "title": "SSH Enabled",
+        "status": "PASS",
+        "severity": "Low",
+        "reason": "SSH version 2 is enabled.",
+        "recommended_config": "ip ssh version 2"
+      },
+      {
+        "title": "Minimum Password Length",
+        "status": "FAIL",
+        "severity": "Medium",
+        "reason": "Minimum password length is below the required 12 characters.",
+        "recommended_config": "security passwords min-length 12"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Distribution-Switch-Juniper",
+    "vendor": "Juniper",
+    "compliance": 75,
+    "status": "yellow",
+    "findings": [
+      {
+        "title": "Telnet Disabled",
+        "status": "PASS",
+        "severity": "Low",
+        "reason": "Telnet service is disabled.",
+        "recommended_config": "delete system services telnet"
+      },
+      {
+        "title": "HTTP Web Management Disabled",
+        "status": "PASS",
+        "severity": "Low",
+        "reason": "HTTP web management is disabled.",
+        "recommended_config": "delete system services web-management http"
+      },
+      {
+        "title": "SSH Enabled",
+        "status": "PASS",
+        "severity": "Low",
+        "reason": "SSH service is enabled.",
+        "recommended_config": "set system services ssh"
+      },
+      {
+        "title": "Remote Logging",
+        "status": "FAIL",
+        "severity": "Medium",
+        "reason": "Remote syslog configuration is missing.",
+        "recommended_config": "set system syslog host <syslog-server>"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Demo-Cisco-Router",
+    "vendor": "Cisco",
+    "compliance": 25,
+    "status": "red",
+    "findings": [
+      {
+        "title": "Telnet Disabled",
+        "status": "FAIL",
+        "severity": "High",
+        "reason": "Telnet is enabled on the VTY lines.",
+        "recommended_config": "no transport input telnet"
+      },
+      {
+        "title": "HTTP Server Disabled",
+        "status": "FAIL",
+        "severity": "High",
+        "reason": "The Cisco HTTP server is enabled.",
+        "recommended_config": "no ip http server"
+      },
+      {
+        "title": "SSH Enabled",
+        "status": "PASS",
+        "severity": "Low",
+        "reason": "SSH version 2 or SSH-only VTY access is enabled.",
+        "recommended_config": "ip ssh version 2"
+      },
+      {
+        "title": "Minimum Password Length",
+        "status": "FAIL",
+        "severity": "Medium",
+        "reason": "Minimum password length is 8, which is below the required 12 characters.",
+        "recommended_config": "security passwords min-length 12"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Demo-Juniper-Firewall",
+    "vendor": "Juniper",
+    "compliance": 50,
+    "status": "red",
+    "findings": [
+      {
+        "title": "Telnet Disabled",
+        "status": "FAIL",
+        "severity": "High",
+        "reason": "Juniper Telnet service is enabled.",
+        "recommended_config": "delete system services telnet"
+      },
+      {
+        "title": "HTTP Web Management Disabled",
+        "status": "FAIL",
+        "severity": "High",
+        "reason": "HTTP web management is enabled.",
+        "recommended_config": "delete system services web-management http"
+      },
+      {
+        "title": "SSH Enabled",
+        "status": "PASS",
+        "severity": "Low",
+        "reason": "Juniper SSH service is enabled.",
+        "recommended_config": "set system services ssh"
+      },
+      {
+        "title": "Remote Logging",
+        "status": "PASS",
+        "severity": "Low",
+        "reason": "Remote syslog configuration is enabled.",
+        "recommended_config": "set system syslog host <syslog-server>"
       }
     ]
   }
