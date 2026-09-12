@@ -1,266 +1,2542 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>AegisNet AI - SIH26155 Demo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SecureNova | Security Compliance Center</title>
+
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        h1 { text-align: center; color: #333; margin-bottom: 5px; }
-        .subtitle { text-align: center; color: #666; margin-bottom: 5px; }
-        .team-name { text-align: center; font-weight: bold; margin-bottom: 25px; color: #444; }
-        .container { max-width: 1000px; margin: 0 auto; }
-
-        .summary, .analyzer, .device-card {
-            background: white; padding: 20px; border-radius: 8px;
-            margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .vendor-control { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-        select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; font-weight: bold; }
-
-        textarea {
-            width: 100%; min-height: 180px; box-sizing: border-box;
-            padding: 12px; font-family: monospace; font-size: 14px;
-            border: 1px solid #ccc; border-radius: 6px; resize: vertical;
+        :root {
+            --bg: #060b12;
+            --panel: #0b121c;
+            --panel-2: #0e1722;
+            --border: #1b2a39;
+            --text: #e8f0f7;
+            --muted: #718397;
+            --blue: #38bdf8;
+            --green: #2dd4a8;
+            --yellow: #f5c451;
+            --red: #ff5c70;
+            --purple: #a78bfa;
         }
 
-        .analyze-button {
-            margin-top: 15px; padding: 12px 24px; border: none;
-            border-radius: 6px; background: #007bff; color: white;
-            font-size: 16px; font-weight: bold; cursor: pointer;
+        html {
+            scroll-behavior: smooth;
         }
-        .analyze-button:hover { background: #0056b3; }
 
-        .analysis-result { display: none; margin-top: 20px; }
-        .compliance-score { font-size: 22px; font-weight: bold; margin-bottom: 10px; }
+        body {
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            background:
+                radial-gradient(circle at 75% -10%, rgba(56,189,248,.09), transparent 30%),
+                radial-gradient(circle at 10% 20%, rgba(167,139,250,.05), transparent 25%),
+                var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 14px;
+        }
 
-        .device-card { cursor: pointer; border-left: 5px solid #ccc; padding: 15px; }
-        .device-card.green { border-left-color: #28a745; }
-        .device-card.yellow { border-left-color: #ffc107; }
-        .device-card.red { border-left-color: #dc3545; }
-        .device-header { display: flex; justify-content: space-between; align-items: center; }
-        .device-name { font-weight: bold; font-size: 18px; }
-        .device-vendor { color: #666; font-size: 14px; }
-        .device-compliance { font-weight: bold; }
+        button,
+        input,
+        textarea,
+        select {
+            font-family: inherit;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #f8f9fa; }
-        .findings-table { display: none; }
+        button {
+            cursor: pointer;
+        }
 
-        .status-pass { color: #28a745; font-weight: bold; }
-        .status-fail { color: #dc3545; font-weight: bold; }
-        .severity-HIGH { color: #dc3545; font-weight: bold; }
-        .severity-MEDIUM { color: #d39e00; font-weight: bold; }
-        .error-message { color: #dc3545; margin-top: 10px; font-weight: bold; }
+        /* =========================
+           LAYOUT
+        ========================== */
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            border-right: 1px solid var(--border);
+            background: rgba(7,13,21,.96);
+            padding: 22px 15px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 0 8px 25px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(145deg, #12324a, #0c1b2a);
+            border: 1px solid #24516d;
+            color: var(--blue);
+            font-size: 20px;
+            box-shadow: 0 0 22px rgba(56,189,248,.12);
+        }
+
+        .brand h1 {
+            font-size: 19px;
+            letter-spacing: .3px;
+        }
+
+        .brand p {
+            color: var(--muted);
+            font-size: 10px;
+            margin-top: 3px;
+            letter-spacing: 1.2px;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            color: #4e6276;
+            letter-spacing: 1.5px;
+            margin: 25px 10px 9px;
+            text-transform: uppercase;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 13px 12px;
+            border-radius: 8px;
+            color: #8293a4;
+            font-size: 14px;
+            margin-bottom: 5px;
+            border: 1px solid transparent;
+            transition: .2s;
+            user-select: none;
+        }
+
+        .nav-item:hover {
+            color: #e7f6ff;
+            background: #0d1d2b;
+            border-color: #19364b;
+        }
+
+        .nav-item.active {
+            color: #e7f6ff;
+            background: #102333;
+            border: 1px solid #1d4057;
+        }
+
+        .nav-item span:first-child {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .system-box {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            right: 15px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: #09121c;
+        }
+
+        .system-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+        }
+
+        .online {
+            color: var(--green);
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .offline {
+            color: var(--red);
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 9px currentColor;
+        }
+
+        /* =========================
+           MAIN
+        ========================== */
+
+        .main {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            padding: 30px 34px 55px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .topbar h2 {
+            font-size: 28px;
+            font-weight: 650;
+        }
+
+        .topbar p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 6px;
+        }
+
+        .header-status {
+            border: 1px solid #1e3c4e;
+            background: #091722;
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: #8da5b8;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        /* =========================
+           KPI
+        ========================== */
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .kpi {
+            background: linear-gradient(145deg, #0c151f, #09111a);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 19px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi::after {
+            content: "";
+            position: absolute;
+            right: -25px;
+            top: -25px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(56,189,248,.05);
+        }
+
+        .kpi-label {
+            color: #718397;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .kpi-value {
+            font-size: 34px;
+            margin-top: 9px;
+            font-weight: 700;
+        }
+
+        .kpi-meta {
+            color: #53677b;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .kpi.red .kpi-value {
+            color: var(--red);
+        }
+
+        .kpi.yellow .kpi-value {
+            color: var(--yellow);
+        }
+
+        .kpi.green .kpi-value {
+            color: var(--green);
+        }
+
+        /* =========================
+           SECTION
+        ========================== */
+
+        .section {
+            background: rgba(9,16,25,.88);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            scroll-margin-top: 25px;
+        }
+
+        .section-head {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title > div:first-child {
+            font-size: 18px;
+        }
+
+        .section-title h3 {
+            font-size: 17px;
+        }
+
+        .section-title p {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        /* =========================
+           FLEET
+        ========================== */
+
+        .fleet-toolbar {
+            display: flex;
+            gap: 9px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search {
+            flex: 1;
+            background: #080f17;
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 7px;
+            padding: 11px 12px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .search:focus {
+            border-color: #28516c;
+        }
+
+        .filter {
+            background: #080f17;
+            border: 1px solid var(--border);
+            color: #92a5b7;
+            border-radius: 7px;
+            padding: 10px 12px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .devices {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 11px;
+            padding: 16px;
+        }
+
+        .device {
+            border: 1px solid var(--border);
+            background: #0a131d;
+            border-radius: 9px;
+            padding: 15px;
+            transition: .2s;
+        }
+
+        .device:hover {
+            border-color: #2a475c;
+            transform: translateY(-1px);
+        }
+
+        .device-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .device-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .device-vendor {
+            color: #65788b;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .status-badge {
+            font-size: 10px;
+            padding: 5px 8px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            white-space: nowrap;
+        }
+
+        .status-green {
+            color: var(--green);
+            background: rgba(45,212,168,.08);
+            border: 1px solid rgba(45,212,168,.18);
+        }
+
+        .status-yellow {
+            color: var(--yellow);
+            background: rgba(245,196,81,.08);
+            border: 1px solid rgba(245,196,81,.18);
+        }
+
+        .status-red {
+            color: var(--red);
+            background: rgba(255,92,112,.08);
+            border: 1px solid rgba(255,92,112,.18);
+        }
+
+        .device-score {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            color: #617487;
+        }
+
+        .device-score strong {
+            color: #dbe8f1;
+            font-size: 14px;
+        }
+
+        .progress {
+            height: 5px;
+            background: #16232f;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: inherit;
+        }
+
+        .progress-green {
+            background: var(--green);
+        }
+
+        .progress-yellow {
+            background: var(--yellow);
+        }
+
+        .progress-red {
+            background: var(--red);
+        }
+
+        .findings-count {
+            margin-top: 12px;
+            font-size: 11px;
+            color: #687b8d;
+        }
+
+        /* =========================
+           ANALYZER
+        ========================== */
+
+        .analyzer {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 0;
+        }
+
+        .analyzer-left {
+            padding: 21px;
+            border-right: 1px solid var(--border);
+        }
+
+        .analyzer-right {
+            padding: 21px;
+            background: #08111a;
+        }
+
+        label {
+            display: block;
+            color: #7e91a3;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .9px;
+            margin-bottom: 7px;
+        }
+
+        .field {
+            margin-bottom: 16px;
+        }
+
+        .text-input,
+        .config-input {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: #070e16;
+            color: #dce8f1;
+            border-radius: 7px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .text-input {
+            padding: 12px;
+        }
+
+        .config-input {
+            height: 245px;
+            resize: vertical;
+            padding: 13px;
+            font-family: Consolas, monospace;
+            line-height: 1.6;
+        }
+
+        .text-input:focus,
+        .config-input:focus {
+            border-color: #2b5b78;
+            box-shadow: 0 0 0 2px rgba(56,189,248,.04);
+        }
+
+        /* FILE UPLOAD */
+
+        .upload-area {
+            margin-top: 10px;
+            margin-bottom: 14px;
+            padding: 13px;
+            border: 1px dashed #29445c;
+            border-radius: 8px;
+            background: #091521;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-btn {
+            background: #102437;
+            color: #a9c9df;
+            border: 1px solid #294b64;
+            padding: 9px 13px;
+            border-radius: 7px;
+            font-size: 12px;
+            transition: .2s;
+            white-space: nowrap;
+        }
+
+        .upload-btn:hover {
+            background: #16344c;
+            border-color: var(--blue);
+            color: white;
+        }
+
+        #file-name {
+            color: #64778b;
+            font-size: 11px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .sample-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 9px;
+        }
+
+        .small-btn {
+            background: #0b1824;
+            color: #7f9aae;
+            border: 1px solid var(--border);
+            padding: 8px 11px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .small-btn:hover {
+            color: white;
+            border-color: #31556d;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 17px;
+        }
+
+        .primary-btn {
+            flex: 1;
+            border: 0;
+            border-radius: 7px;
+            padding: 12px 15px;
+            background: linear-gradient(135deg, #1683bb, #12628f);
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .primary-btn:hover {
+            filter: brightness(1.12);
+        }
+
+        .secondary-btn {
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 12px 15px;
+            background: #0a141e;
+            color: #8ea2b5;
+            font-size: 12px;
+        }
+
+        .secondary-btn:hover {
+            border-color: #31536b;
+            color: white;
+        }
+
+        /* RESULT */
+
+        .empty-result {
+            min-height: 310px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #526577;
+        }
+
+        .empty-icon {
+            font-size: 35px;
+            margin-bottom: 10px;
+            opacity: .7;
+        }
+
+        .result-score {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding-bottom: 19px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .score-circle {
+            width: 84px;
+            height: 84px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 23px;
+            font-weight: 700;
+            border: 5px solid #243646;
+            flex-shrink: 0;
+        }
+
+        .score-circle.good {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .score-circle.warn {
+            border-color: var(--yellow);
+            color: var(--yellow);
+        }
+
+        .score-circle.bad {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .result-title {
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .result-sub {
+            color: #66798b;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .findings {
+            margin-top: 17px;
+        }
+
+        .finding {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 12px;
+            background: #0a151f;
+            border: 1px solid #152431;
+            border-radius: 7px;
+            margin-bottom: 7px;
+        }
+
+        .finding-left {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .finding-icon {
+            font-size: 15px;
+        }
+
+        .finding-name {
+            font-size: 13px;
+            color: #bdcbd6;
+        }
+
+        .finding-status {
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .pass {
+            color: var(--green);
+        }
+
+        .fail {
+            color: var(--red);
+        }
+
+        /* =========================
+           AI
+        ========================== */
+
+        .ai-box {
+            margin-top: 16px;
+            border: 1px solid #253348;
+            background:
+                linear-gradient(145deg, rgba(22,27,47,.8), rgba(9,16,27,.8));
+            border-radius: 9px;
+            padding: 15px;
+        }
+
+        .ai-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 11px;
+        }
+
+        .ai-head strong {
+            font-size: 13px;
+            color: #c8c5ff;
+        }
+
+        .ai-head span {
+            font-size: 10px;
+            color: #776fd1;
+            border: 1px solid #39365f;
+            padding: 3px 5px;
+            border-radius: 4px;
+        }
+
+        .recommendation {
+            padding: 10px 11px;
+            border-left: 2px solid var(--purple);
+            background: rgba(167,139,250,.035);
+            margin-bottom: 7px;
+        }
+
+        .recommendation-title {
+            font-size: 12px;
+            color: #d5d2f8;
+            font-weight: 600;
+        }
+
+        .recommendation-detail {
+            color: #8796a8;
+            font-size: 11px;
+            margin-top: 4px;
+            line-height: 1.45;
+        }
+
+        .message {
+            display: none;
+            padding: 10px 12px;
+            border-radius: 7px;
+            margin-top: 11px;
+            font-size: 12px;
+        }
+
+        .message.error {
+            display: block;
+            color: #ff8796;
+            background: rgba(255,92,112,.06);
+            border: 1px solid rgba(255,92,112,.18);
+        }
+
+        .message.success {
+            display: block;
+            color: #67e3c3;
+            background: rgba(45,212,168,.06);
+            border: 1px solid rgba(45,212,168,.18);
+        }
+
+        /* SETTINGS */
+
+        .settings-content {
+            padding: 20px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .setting-card {
+            border: 1px solid var(--border);
+            background: #0a131d;
+            border-radius: 9px;
+            padding: 16px;
+        }
+
+        .setting-card h4 {
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .setting-card p {
+            color: #718397;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .setting-value {
+            margin-top: 12px;
+            color: var(--blue);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media(max-width: 1100px) {
+            .devices {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .kpis {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media(max-width: 850px) {
+            .sidebar {
+                width: 65px;
+                padding: 18px 9px;
+            }
+
+            .brand h1,
+            .brand p,
+            .nav-title,
+            .nav-item span:last-child,
+            .system-box {
+                display: none;
+            }
+
+            .brand {
+                justify-content: center;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .nav-item {
+                justify-content: center;
+                padding: 13px 8px;
+            }
+
+            .nav-item span:first-child {
+                width: auto;
+            }
+
+            .main {
+                margin-left: 65px;
+                width: calc(100% - 65px);
+                padding: 22px;
+            }
+
+            .analyzer {
+                grid-template-columns: 1fr;
+            }
+
+            .analyzer-left {
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 600px) {
+            .main {
+                padding: 15px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .topbar h2 {
+                font-size: 23px;
+            }
+
+            .header-status {
+                display: none;
+            }
+
+            .devices {
+                grid-template-columns: 1fr;
+            }
+
+            .kpis {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .fleet-toolbar {
+                flex-wrap: wrap;
+            }
+
+            .search {
+                flex-basis: 100%;
+            }
+
+            .upload-area {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .actions {
+                flex-wrap: wrap;
+            }
+
+            .primary-btn,
+            .secondary-btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <h1>🛡️ AegisNet AI</h1>
-    <div class="subtitle">AI-Driven Multi-Vendor Network Security Compliance Auditor</div>
-    <div class="team-name">A SecureNova Innovation | SIH26155</div>
 
-    <!-- SUMMARY -->
-    <div class="summary" id="summary">Loading summary...</div>
+<div class="app">
 
-    <!-- MULTI-VENDOR ANALYZER -->
-    <div class="analyzer">
-        <h2>🔍 Multi-Vendor Configuration Analyzer</h2>
-        <div class="vendor-control">
-            <label><strong>🤖 Vendor Detection:</strong></label>
-            <span>Automatic</span>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">🛡</div>
+
+            <div>
+                <h1>SecureNova</h1>
+                <p>SECURITY OPERATIONS</p>
+            </div>
         </div>
 
-        <textarea id="config-input"></textarea>
-        <br>
-        <button class="analyze-button" id="analyze-button" onclick="analyzeConfiguration()">
-            🔍 Analyze Security Posture
-        </button>
-        <div id="analysis-error" class="error-message"></div>
+        <div class="nav-title">Workspace</div>
 
-        <div class="analysis-result" id="analysis-result">
-            <div class="compliance-score" id="analysis-score"></div>
-            <div id="analysis-vendor"></div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Control</th>
-                        <th>Status</th>
-                        <th>Severity</th>
-                        <th>Reason</th>
-                        <th>Remediation</th>
-                    </tr>
-                </thead>
-                <tbody id="analysis-findings"></tbody>
-            </table>
+        <div class="nav-item active"
+             onclick="navigateToSection('overview-section', this)">
+            <span>◈</span>
+            <span>Security Overview</span>
         </div>
-    </div>
 
-    <!-- PREDEFINED MONITORED FLEET -->
-    <div id="devices-list">Loading devices...</div>
+        <div class="nav-item"
+             onclick="navigateToSection('fleet-section', this)">
+            <span>▦</span>
+            <span>Device Fleet</span>
+        </div>
+
+        <div class="nav-item"
+             onclick="navigateToSection('audit-section', this)">
+            <span>⌕</span>
+            <span>Configuration Audit</span>
+        </div>
+
+        <div class="nav-title">System</div>
+
+        <div class="nav-item"
+             onclick="navigateToSection('settings-section', this)">
+            <span>⚙</span>
+            <span>Audit Settings</span>
+        </div>
+
+        <div class="system-box">
+            <div class="system-row">
+                <span style="color:#718397">API STATUS</span>
+
+                <span class="online">
+                    <span class="dot"></span>
+                    <span id="api-status">Checking</span>
+                </span>
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- OVERVIEW -->
+        <section id="overview-section" class="section"
+                 style="background:transparent;border:0;overflow:visible;">
+
+            <div class="topbar">
+
+                <div>
+                    <h2>Security Compliance Center</h2>
+                    <p>
+                        AI-driven multi-vendor network security compliance monitoring
+                    </p>
+                </div>
+
+                <div class="header-status">
+                    <span class="dot" style="color:var(--green)"></span>
+                    SecureNova Engine Online
+                </div>
+
+            </div>
+
+
+            <!-- KPI -->
+            <div class="kpis">
+
+                <div class="kpi">
+                    <div class="kpi-label">Total Devices</div>
+                    <div class="kpi-value" id="total-devices">0</div>
+                    <div class="kpi-meta">Registered network assets</div>
+                </div>
+
+                <div class="kpi green">
+                    <div class="kpi-label">Compliant</div>
+                    <div class="kpi-value" id="compliant-devices">0</div>
+                    <div class="kpi-meta">Security score ≥ 90%</div>
+                </div>
+
+                <div class="kpi red">
+                    <div class="kpi-label">Critical</div>
+                    <div class="kpi-value" id="critical-devices">0</div>
+                    <div class="kpi-meta">Security score below 70%</div>
+                </div>
+
+                <div class="kpi yellow">
+                    <div class="kpi-label">Average Posture</div>
+                    <div class="kpi-value" id="average-compliance">0%</div>
+                    <div class="kpi-meta">Across monitored fleet</div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- DEVICE FLEET -->
+        <section id="fleet-section" class="section">
+
+            <div class="section-head">
+
+                <div class="section-title">
+                    <div>🖥️</div>
+
+                    <div>
+                        <h3>Network Device Fleet</h3>
+                        <p>
+                            Live compliance posture across registered infrastructure
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="fleet-toolbar">
+
+                <input
+                    id="device-search"
+                    class="search"
+                    placeholder="Search device..."
+                    oninput="renderDevices()"
+                >
+
+                <select
+                    id="vendor-filter"
+                    class="filter"
+                    onchange="renderDevices()"
+                >
+                    <option value="all">All Vendors</option>
+                    <option value="Cisco">Cisco</option>
+                    <option value="Juniper">Juniper</option>
+                </select>
+
+                <select
+                    id="status-filter"
+                    class="filter"
+                    onchange="renderDevices()"
+                >
+                    <option value="all">All Status</option>
+                    <option value="green">Compliant</option>
+                    <option value="yellow">Warning</option>
+                    <option value="red">Critical</option>
+                </select>
+
+            </div>
+
+
+            <div id="devices" class="devices">
+
+                <div style="padding:20px;color:#66798b;font-size:11px;">
+                    Loading device fleet...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- CONFIGURATION AUDIT -->
+        <section id="audit-section" class="section">
+
+            <div class="section-head">
+
+                <div class="section-title">
+                    <div>🔍</div>
+
+                    <div>
+                        <h3>Configuration Compliance Analyzer</h3>
+                        <p>
+                            Analyze Cisco IOS and Juniper Junos configurations
+                            with AI-assisted remediation
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="analyzer">
+
+                <!-- LEFT -->
+                <div class="analyzer-left">
+
+                    <div class="field">
+
+                        <label>Device Name</label>
+
+                        <input
+                            id="device-name-input"
+                            class="text-input"
+                            placeholder="Example: Branch-Router-01"
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label>Configuration</label>
+
+                        <textarea
+                            id="config-input"
+                            class="config-input"
+                            placeholder="Paste Cisco IOS or Juniper Junos configuration here..."
+                        ></textarea>
+
+
+                        <!-- FILE UPLOAD -->
+                        <div class="upload-area">
+
+                            <input
+                                type="file"
+                                id="config-file"
+                                accept=".txt,.cfg,.conf,.log"
+                                hidden
+                                onchange="handleConfigFile(event)"
+                            >
+
+                            <button
+                                type="button"
+                                class="upload-btn"
+                                onclick="document.getElementById('config-file').click()"
+                            >
+                                📁 Upload Configuration File
+                            </button>
+
+                            <span id="file-name">
+                                No file selected
+                            </span>
+
+                        </div>
+
+
+                        <div style="font-size:10px;color:#53677b;">
+                            Supported: .txt, .cfg, .conf, .log
+                        </div>
+
+
+                        <div class="sample-row">
+
+                            <button
+                                class="small-btn"
+                                onclick="loadCiscoSample()"
+                            >
+                                Cisco Sample
+                            </button>
+
+                            <button
+                                class="small-btn"
+                                onclick="loadJuniperSample()"
+                            >
+                                Juniper Sample
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="actions">
+
+                        <button
+                            class="primary-btn"
+                            onclick="analyzeConfiguration(false)"
+                        >
+                            🔍 Analyze Configuration
+                        </button>
+
+                        <button
+                            class="secondary-btn"
+                            onclick="analyzeConfiguration(true)"
+                        >
+                            ＋ Analyze & Add
+                        </button>
+
+                        <button
+                            class="secondary-btn"
+                            onclick="clearConfiguration()"
+                        >
+                            Clear
+                        </button>
+
+                    </div>
+
+
+                    <div id="message" class="message"></div>
+
+                </div>
+
+
+                <!-- RIGHT -->
+                <div class="analyzer-right">
+
+                    <div id="analysis-result">
+
+                        <div class="empty-result">
+
+                            <div>
+                                <div class="empty-icon">◌</div>
+
+                                <div style="font-size:13px;color:#718397;">
+                                    No configuration analyzed
+                                </div>
+
+                                <div style="font-size:10px;margin-top:5px;">
+                                    Paste or upload a configuration to begin
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SETTINGS -->
+        <section id="settings-section" class="section">
+
+            <div class="section-head">
+
+                <div class="section-title">
+                    <div>⚙</div>
+
+                    <div>
+                        <h3>Audit Settings</h3>
+                        <p>
+                            SecureNova analysis configuration and policy thresholds
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="settings-content">
+
+                <div class="settings-grid">
+
+                    <div class="setting-card">
+                        <h4>Compliance Threshold</h4>
+                        <p>
+                            Devices with a score of 90% or higher are considered
+                            compliant.
+                        </p>
+                        <div class="setting-value">≥ 90%</div>
+                    </div>
+
+                    <div class="setting-card">
+                        <h4>Warning Threshold</h4>
+                        <p>
+                            Devices from 70% to 89% are shown as requiring attention.
+                        </p>
+                        <div class="setting-value">70% – 89%</div>
+                    </div>
+
+                    <div class="setting-card">
+                        <h4>Supported Vendors</h4>
+                        <p>
+                            SecureNova currently analyzes Cisco IOS and Juniper Junos
+                            configurations.
+                        </p>
+                        <div class="setting-value">
+                            Cisco + Juniper
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
 </div>
 
+
 <script>
-const API_BASE = "http://127.0.0.1:8000";
 
-const CISCO_SAMPLE = `hostname Core-Router
-ip http server
-line vty 0 4
- transport input telnet ssh
-ip ssh version 2
-security passwards min-length 8`;
+    const API_BASE = "http://127.0.0.1:8000";
 
-const JUNIPER_SAMPLE = `set system host-name Edge-Firewall
-set system services telnet
-set system services ssh
-set system services web-management http`;
+    let devicesData = [];
 
 
+    /* =========================
+       UTILITY
+    ========================== */
 
-async function loadSummary() {
-    try {
-        const res = await fetch(`${API_BASE}/summary`);
-        const data = await res.json();
-        document.getElementById("summary").innerHTML = `
-            <strong>📊 Network Summary:</strong> Total Devices: ${data.total_devices} | Compliant: ${data.compliant_devices} | Average Compliance: ${data.average_compliance}%
-        `;
-    } catch {
-        document.getElementById("summary").innerHTML = "⚠️ Backend not running. Start FastAPI server.";
-    }
-}
+    function escapeHtml(value) {
 
-async function loadDevices() {
-    try {
-        const res = await fetch(`${API_BASE}/devices`);
-        const devices = await res.json();
-        let html = "";
-        devices.forEach(device => {
-            html += `
-                <div class="device-card ${device.status}" onclick="toggleFindings(${device.id})">
-                    <div class="device-header">
-                        <div>
-                            <div class="device-name">${device.name}</div>
-                            <div class="device-vendor">${device.vendor}</div>
-                        </div>
-                        <div class="device-compliance">Compliance: ${device.compliance}%</div>
-                    </div>
-                    <table class="findings-table" id="findings-${device.id}">
-                        <thead>
-                            <tr><th>Control</th><th>Status</th><th>Severity</th><th>Reason</th><th>Remediation</th></tr>
-                        </thead>
-                        <tbody>
-                            ${device.findings.map(f => `
-                                <tr>
-                                    <td>${f.control}</td>
-                                    <td class="${f.status === 'PASS' ? 'status-pass' : 'status-fail'}">${f.status}</td>
-                                    <td class="severity-${f.severity}">${f.severity}</td>
-                                    <td>${f.reason}</td>
-                                    <td><code>${f.remediation}</code></td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        });
-        document.getElementById("devices-list").innerHTML = html;
-    } catch {
-        document.getElementById("devices-list").innerHTML = "⚠️ Backend not running.";
-    }
-}
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
 
-function toggleFindings(deviceId) {
-    const table = document.getElementById(`findings-${deviceId}`);
-    table.style.display = table.style.display === "table" ? "none" : "table";
-}
-
-async function analyzeConfiguration() {
-    const config = document.getElementById("config-input").value.trim();
-    const resultBox = document.getElementById("analysis-result");
-    const errorBox = document.getElementById("analysis-error");
-
-    errorBox.innerHTML = "";
-
-    if (!config) {
-        errorBox.innerHTML = "⚠️ Paste configuration before running analysis.";
-        return;
     }
 
-    try {
-        const res = await fetch(`${API_BASE}/analyze/auto`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ config })
-        });
 
-        const data = await res.json();
+    function showMessage(text, type = "success") {
 
-        if (!res.ok) {
-            throw new Error(data.detail || "Analysis failed");
-        }
+        const box = document.getElementById("message");
 
-        if (data.vendor === "Unknown / Unsupported") {
-            resultBox.style.display = "block";
+        box.textContent = text;
 
-            document.getElementById("analysis-score").innerHTML =
-                "📊 Compliance Score: N/A";
+        box.className = "message " + type;
 
-            document.getElementById("analysis-vendor").innerHTML =
-                "🤖 <strong>Detected Vendor:</strong> Unknown / Unsupported";
+    }
 
-            document.getElementById("analysis-findings").innerHTML = `
-                <tr>
-                    <td colspan="5">
-                        ⚠️ AegisNet could not identify a supported vendor.
-                    </td>
-                </tr>
-            `;
 
+    function hideMessage() {
+
+        const box = document.getElementById("message");
+
+        box.style.display = "none";
+
+        box.textContent = "";
+
+        box.className = "message";
+
+    }
+
+
+    /* =========================
+       SIDEBAR NAVIGATION
+    ========================== */
+
+    function navigateToSection(sectionId, navElement) {
+
+        const section = document.getElementById(sectionId);
+
+        if (!section) {
             return;
         }
 
-        resultBox.style.display = "block";
+        document.querySelectorAll(".nav-item").forEach(item => {
+            item.classList.remove("active");
+        });
 
-        document.getElementById("analysis-score").innerHTML =
-            `📊 Compliance Score: ${data.compliance}%`;
+        navElement.classList.add("active");
 
-        document.getElementById("analysis-vendor").innerHTML = `
-            🤖 <strong>Detected Vendor:</strong> ${data.detected_vendor || data.vendor}
-            &nbsp; | &nbsp;
-            <strong>Confidence:</strong> ${data.confidence || "N/A"}
-        `;
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
 
-        document.getElementById("analysis-findings").innerHTML =
-            data.findings.map(f => `
-                <tr>
-                    <td>${f.control}</td>
-                    <td class="${f.status === 'PASS' ? 'status-pass' : 'status-fail'}">
-                        ${f.status}
-                    </td>
-                    <td class="severity-${f.severity}">
-                        ${f.severity}
-                    </td>
-                    <td>${f.reason}</td>
-                    <td><code>${f.remediation}</code></td>
-                </tr>
-            `).join("");
-
-    } catch (err) {
-        console.error(err);
-
-        errorBox.innerHTML =
-            "⚠️ Analysis failed. Check FastAPI server and /analyze/auto endpoint.";
-
-        resultBox.style.display = "none";
     }
+
+
+    /* =========================
+       API STATUS
+    ========================== */
+
+    async function checkApi() {
+
+    const statusElement =
+        document.getElementById("api-status");
+
+    const statusContainer =
+        statusElement.parentElement;
+
+    try {
+
+        const response =
+            await fetch(API_BASE + "/", {
+                cache: "no-store"
+            });
+
+        if (!response.ok) {
+            throw new Error("API unavailable");
+        }
+
+        statusElement.textContent = "Online";
+
+        statusContainer.className = "online";
+
+    } catch (error) {
+
+        statusElement.textContent = "Offline";
+
+        statusContainer.className = "offline";
+
+    }
+
 }
 
-loadSummary();
-loadDevices();
+
+    /* =========================
+       SUMMARY
+    ========================== */
+
+    async function loadSummary() {
+
+        try {
+
+            const response =
+                await fetch(API_BASE + "/summary", {
+                    cache: "no-store"
+                });
+
+            if (!response.ok) {
+                throw new Error("Summary failed");
+            }
+
+            const data = await response.json();
+
+            const total =
+                Number(data.total_devices ?? 0);
+
+            const compliant =
+                Number(data.compliant_devices ?? 0);
+
+            /*
+             * Critical means score BELOW 70%.
+             * Do not calculate it as total - compliant,
+             * because warning devices are not critical.
+             */
+
+            let critical = 0;
+
+            if (devicesData.length > 0) {
+
+                critical = devicesData.filter(device => {
+
+                    const compliance =
+                        Number(device.compliance ?? 0);
+
+                    return compliance < 70;
+
+                }).length;
+
+            } else {
+
+                critical =
+                    Number(data.critical_devices ?? 0);
+
+            }
+
+
+            document.getElementById("total-devices").textContent =
+                total;
+
+            document.getElementById("compliant-devices").textContent =
+                compliant;
+
+            document.getElementById("critical-devices").textContent =
+                critical;
+
+            document.getElementById("average-compliance").textContent =
+                Math.round(
+                    Number(data.average_compliance ?? 0)
+                ) + "%";
+
+
+        } catch (error) {
+
+            console.error("Summary error:", error);
+
+        }
+
+    }
+
+
+    /* =========================
+       DEVICES
+    ========================== */
+
+    async function loadDevices() {
+
+        try {
+
+            const response =
+                await fetch(API_BASE + "/devices", {
+                    cache: "no-store"
+                });
+
+            if (!response.ok) {
+                throw new Error("Device request failed");
+            }
+
+            devicesData = await response.json();
+
+            renderDevices();
+
+            /*
+             * Refresh summary after device data
+             * has been loaded so Critical is accurate.
+             */
+            await loadSummary();
+
+        } catch (error) {
+
+            console.error(error);
+
+            document.getElementById("devices").innerHTML = `
+                <div style="
+                    padding:20px;
+                    color:#ff7080;
+                    font-size:12px;
+                ">
+                    Unable to load device fleet.
+                </div>
+            `;
+
+        }
+
+    }
+
+
+    function renderDevices() {
+
+        const container =
+            document.getElementById("devices");
+
+        const search =
+            document.getElementById("device-search")
+                .value
+                .toLowerCase()
+                .trim();
+
+        const vendor =
+            document.getElementById("vendor-filter").value;
+
+        const status =
+            document.getElementById("status-filter").value;
+
+
+        const filtered =
+            devicesData.filter(device => {
+
+                const compliance =
+                    Number(device.compliance ?? 0);
+
+                /*
+                 * Always calculate status from the score.
+                 * This prevents old/stale JSON status values
+                 * from displaying incorrectly.
+                 */
+                const calculatedStatus =
+                    getStatus(compliance);
+
+                const matchesSearch =
+                    String(device.name ?? "")
+                        .toLowerCase()
+                        .includes(search);
+
+                const matchesVendor =
+                    vendor === "all" ||
+                    String(device.vendor ?? "") === vendor;
+
+                const matchesStatus =
+                    status === "all" ||
+                    calculatedStatus === status;
+
+                return matchesSearch &&
+                       matchesVendor &&
+                       matchesStatus;
+
+            });
+
+
+        if (filtered.length === 0) {
+
+            container.innerHTML = `
+                <div style="
+                    padding:20px;
+                    color:#65788b;
+                    font-size:12px;
+                ">
+                    No devices match the selected filters.
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        container.innerHTML =
+            filtered.map(device => {
+
+                const compliance =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            Number(device.compliance ?? 0)
+                        )
+                    );
+
+                const deviceStatus =
+                    getStatus(compliance);
+
+                const statusClass =
+                    "status-" + deviceStatus;
+
+                const progressClass =
+                    "progress-" + deviceStatus;
+
+                const findings =
+                    Array.isArray(device.findings)
+                        ? device.findings.length
+                        : 0;
+
+
+                return `
+
+                    <div class="device">
+
+                        <div class="device-top">
+
+                            <div>
+
+                                <div class="device-name">
+                                    ${escapeHtml(device.name)}
+                                </div>
+
+                                <div class="device-vendor">
+                                    ${escapeHtml(
+                                        device.vendor || "Unknown"
+                                    )}
+                                </div>
+
+                            </div>
+
+                            <span class="status-badge ${statusClass}">
+                                ${escapeHtml(
+                                    deviceStatus
+                                )}
+                            </span>
+
+                        </div>
+
+
+                        <div class="device-score">
+
+                            <span>Compliance posture</span>
+
+                            <strong>
+                                ${compliance}%
+                            </strong>
+
+                        </div>
+
+
+                        <div class="progress">
+
+                            <div
+                                class="progress-fill ${progressClass}"
+                                style="width:${compliance}%"
+                            ></div>
+
+                        </div>
+
+
+                        <div class="findings-count">
+                            ${findings}
+                            security finding${findings === 1 ? "" : "s"}
+                        </div>
+
+                    </div>
+
+                `;
+
+            }).join("");
+
+    }
+
+
+    function getStatus(compliance) {
+
+        compliance = Number(compliance) || 0;
+
+        if (compliance >= 90) {
+            return "green";
+        }
+
+        if (compliance >= 70) {
+            return "yellow";
+        }
+
+        return "red";
+
+    }
+
+
+    /* =========================
+       FILE UPLOAD
+    ========================== */
+
+    function handleConfigFile(event) {
+
+        const file =
+            event.target.files[0];
+
+        if (!file) {
+            return;
+        }
+
+
+        const allowedExtensions = [
+            ".txt",
+            ".cfg",
+            ".conf",
+            ".log"
+        ];
+
+
+        const fileName =
+            file.name.toLowerCase();
+
+
+        const validFile =
+            allowedExtensions.some(
+                extension =>
+                    fileName.endsWith(extension)
+            );
+
+
+        if (!validFile) {
+
+            showMessage(
+                "Please upload a .txt, .cfg, .conf or .log configuration file.",
+                "error"
+            );
+
+            event.target.value = "";
+
+            document.getElementById("file-name")
+                .textContent = "No file selected";
+
+            return;
+
+        }
+
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload =
+            function(e) {
+
+                document.getElementById(
+                    "config-input"
+                ).value = e.target.result;
+
+
+                document.getElementById(
+                    "file-name"
+                ).textContent = file.name;
+
+
+                hideMessage();
+
+
+                document.getElementById(
+                    "analysis-result"
+                ).innerHTML = `
+
+                    <div class="empty-result">
+
+                        <div>
+
+                            <div class="empty-icon">✓</div>
+
+                            <div style="
+                                font-size:13px;
+                                color:#67d9bb;
+                            ">
+                                Configuration loaded
+                            </div>
+
+                            <div style="
+                                font-size:10px;
+                                margin-top:5px;
+                            ">
+                                Ready for security analysis
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            };
+
+
+        reader.onerror =
+            function() {
+
+                showMessage(
+                    "Unable to read the configuration file.",
+                    "error"
+                );
+
+            };
+
+
+        reader.readAsText(file);
+
+    }
+
+
+    /* =========================
+       SAMPLES
+    ========================== */
+
+    function loadCiscoSample() {
+
+        document.getElementById(
+            "device-name-input"
+        ).value = "Demo-Cisco-Router";
+
+
+        document.getElementById(
+            "config-input"
+        ).value =
+`hostname Demo-Cisco-Router
+!
+interface GigabitEthernet0/0
+ ip address 192.168.1.1 255.255.255.0
+!
+line vty 0 4
+ transport input telnet
+!
+ip http server
+!
+ip ssh version 2
+!
+security passwords min-length 8
+!`;
+
+
+        document.getElementById(
+            "file-name"
+        ).textContent =
+            "Cisco sample configuration";
+
+        hideMessage();
+
+    }
+
+
+    function loadJuniperSample() {
+
+        document.getElementById(
+            "device-name-input"
+        ).value = "Demo-Juniper-Firewall";
+
+
+        document.getElementById(
+            "config-input"
+        ).value =
+`set system host-name Demo-Juniper-Firewall
+set system services ssh
+set system services telnet
+set system services web-management http
+set system syslog host 192.168.1.10 any info
+set interfaces ge-0/0/0 unit 0 family inet address 192.168.1.1/24`;
+
+
+        document.getElementById(
+            "file-name"
+        ).textContent =
+            "Juniper sample configuration";
+
+        hideMessage();
+
+    }
+
+
+    /* =========================
+       CLEAR
+    ========================== */
+
+    function clearConfiguration() {
+
+        document.getElementById(
+            "device-name-input"
+        ).value = "";
+
+        document.getElementById(
+            "config-input"
+        ).value = "";
+
+        document.getElementById(
+            "config-file"
+        ).value = "";
+
+        document.getElementById(
+            "file-name"
+        ).textContent = "No file selected";
+
+
+        document.getElementById(
+            "analysis-result"
+        ).innerHTML = `
+
+            <div class="empty-result">
+
+                <div>
+
+                    <div class="empty-icon">◌</div>
+
+                    <div style="
+                        font-size:13px;
+                        color:#718397;
+                    ">
+                        No configuration analyzed
+                    </div>
+
+                    <div style="
+                        font-size:10px;
+                        margin-top:5px;
+                    ">
+                        Paste or upload a configuration to begin
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        hideMessage();
+
+    }
+
+
+    /* =========================
+       ANALYZE
+    ========================== */
+
+    async function analyzeConfiguration(
+        addDevice = false
+    ) {
+
+        const name =
+            document.getElementById(
+                "device-name-input"
+            ).value.trim();
+
+        const config =
+            document.getElementById(
+                "config-input"
+            ).value.trim();
+
+
+        if (!config) {
+
+            showMessage(
+                "Please paste or upload a configuration first.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (addDevice && !name) {
+
+            showMessage(
+                "Enter a device name before using Analyze & Add.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        hideMessage();
+
+
+        const resultBox =
+            document.getElementById(
+                "analysis-result"
+            );
+
+
+        resultBox.innerHTML = `
+
+            <div class="empty-result">
+
+                <div>
+
+                    <div class="empty-icon">◌</div>
+
+                    <div style="
+                        font-size:13px;
+                        color:#7bbfe4;
+                    ">
+                        Running security analysis...
+                    </div>
+
+                    <div style="
+                        font-size:10px;
+                        margin-top:5px;
+                    ">
+                        Detecting vendor and evaluating
+                        compliance controls
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        try {
+
+            let response;
+
+
+            if (addDevice) {
+
+                response =
+                    await fetch(
+                        API_BASE + "/devices/analyze",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            body: JSON.stringify({
+                                name: name,
+                                config: config
+                            })
+                        }
+                    );
+
+            } else {
+
+                response =
+                    await fetch(
+                        API_BASE + "/analyze/auto",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+                            body: JSON.stringify({
+                                config: config
+                            })
+                        }
+                    );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok ||
+                data.status === "error") {
+
+                throw new Error(
+                    data.detail ||
+                    data.message ||
+                    "Analysis failed"
+                );
+
+            }
+
+
+            renderAnalysis(data);
+
+
+            if (addDevice) {
+
+                showMessage(
+                    "Device analyzed and added to the SecureNova fleet.",
+                    "success"
+                );
+
+
+                /*
+                 * Reload devices first so that
+                 * summary calculations use the
+                 * latest fleet data.
+                 */
+                await loadDevices();
+
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            resultBox.innerHTML = `
+
+                <div class="empty-result">
+
+                    <div>
+
+                        <div class="empty-icon">!</div>
+
+                        <div style="
+                            font-size:13px;
+                            color:#ff7080;
+                        ">
+                            Analysis failed
+                        </div>
+
+                        <div style="
+                            font-size:10px;
+                            margin-top:5px;
+                        ">
+                            ${escapeHtml(error.message)}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            showMessage(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* =========================
+       RENDER ANALYSIS
+    ========================== */
+
+    function renderAnalysis(data) {
+
+        const resultBox =
+            document.getElementById(
+                "analysis-result"
+            );
+
+
+        const analysis =
+            data.analysis ||
+            data.device ||
+            data;
+
+
+        const compliance =
+            Number(
+                analysis.compliance ??
+                data.device?.compliance ??
+                0
+            );
+
+
+        /*
+         * Backend may return a color status
+         * for stored devices. For a fresh
+         * analysis, calculate it from score.
+         */
+        const status =
+            getStatus(compliance);
+
+
+        const vendor =
+            data.detected_vendor ||
+            analysis.vendor ||
+            data.device?.vendor ||
+            "Unknown";
+
+
+        const findings =
+            Array.isArray(analysis.findings)
+                ? analysis.findings
+                : [];
+
+
+        const ai =
+            data.ai_remediation ||
+            data.ai_recommendations ||
+            {};
+
+
+        const recommendations =
+            Array.isArray(ai.recommendations)
+                ? ai.recommendations
+                : [];
+
+
+        let scoreClass = "bad";
+
+        if (compliance >= 90) {
+            scoreClass = "good";
+        } else if (compliance >= 70) {
+            scoreClass = "warn";
+        }
+
+
+        let findingsHtml = "";
+
+
+        if (findings.length === 0) {
+
+            findingsHtml = `
+                <div style="
+                    font-size:11px;
+                    color:#65788b;
+                ">
+                    No individual findings returned.
+                </div>
+            `;
+
+        } else {
+
+            findingsHtml =
+                findings.map(finding => {
+
+                    /*
+                     * IMPORTANT FIX:
+                     * Backend returns "PASS"/"FAIL"
+                     * in uppercase.
+                     */
+                    const findingStatus =
+                        String(
+                            finding.status ??
+                            finding.result ??
+                            ""
+                        ).toLowerCase().trim();
+
+
+                    const passed =
+                        findingStatus === "pass" ||
+                        finding.passed === true;
+
+
+                    return `
+
+                        <div class="finding">
+
+                            <div class="finding-left">
+
+                                <div class="finding-icon">
+                                    ${passed ? "✓" : "✕"}
+                                </div>
+
+                                <div class="finding-name">
+                                    ${escapeHtml(
+                                        finding.control ||
+                                        finding.name ||
+                                        finding.title ||
+                                        "Security Control"
+                                    )}
+                                </div>
+
+                            </div>
+
+                            <div class="
+                                finding-status
+                                ${passed ? "pass" : "fail"}
+                            ">
+                                ${passed ? "PASS" : "FAIL"}
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }).join("");
+
+        }
+
+
+        let aiHtml = "";
+
+
+        if (recommendations.length > 0) {
+
+            aiHtml = `
+
+                <div class="ai-box">
+
+                    <div class="ai-head">
+
+                        <strong>
+                            🤖 AI REMEDIATION
+                        </strong>
+
+                        <span>GEMINI</span>
+
+                    </div>
+
+
+                    ${recommendations.map(item => {
+
+                        const title =
+                            typeof item === "string"
+                                ? item
+                                : item.title ||
+                                  item.name ||
+                                  item.recommendation ||
+                                  "Security remediation";
+
+
+                        const detail =
+                            typeof item === "string"
+                                ? ""
+                                : item.description ||
+                                  item.reason ||
+                                  item.explanation ||
+                                  item.action ||
+                                  "";
+
+
+                        return `
+
+                            <div class="recommendation">
+
+                                <div class="
+                                    recommendation-title
+                                ">
+                                    ${escapeHtml(title)}
+                                </div>
+
+                                ${
+                                    detail
+                                    ? `
+                                        <div class="
+                                            recommendation-detail
+                                        ">
+                                            ${escapeHtml(detail)}
+                                        </div>
+                                      `
+                                    : ""
+                                }
+
+                            </div>
+
+                        `;
+
+                    }).join("")}
+
+                </div>
+
+            `;
+
+        } else {
+
+            aiHtml = `
+
+                <div class="ai-box">
+
+                    <div class="ai-head">
+
+                        <strong>
+                            🤖 AI REMEDIATION
+                        </strong>
+
+                        <span>GEMINI</span>
+
+                    </div>
+
+                    <div style="
+                        font-size:11px;
+                        color:#66798b;
+                    ">
+                        No AI remediation recommendations returned.
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+
+        resultBox.innerHTML = `
+
+            <div class="result-score">
+
+                <div class="score-circle ${scoreClass}">
+                    ${Math.round(compliance)}%
+                </div>
+
+                <div>
+
+                    <div class="result-title">
+                        ${escapeHtml(vendor)}
+                        Configuration
+                    </div>
+
+                    <div class="result-sub">
+                        Security posture:
+                        ${escapeHtml(status)}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="findings">
+
+                <div style="
+                    color:#6f8294;
+                    font-size:11px;
+                    text-transform:uppercase;
+                    letter-spacing:1px;
+                    margin-bottom:10px;
+                ">
+                    Security Controls
+                </div>
+
+                ${findingsHtml}
+
+            </div>
+
+
+            ${aiHtml}
+
+        `;
+
+    }
+
+
+    /* =========================
+       INITIAL LOAD
+    ========================== */
+
+    async function initialize() {
+
+        await checkApi();
+
+        await loadDevices();
+
+    }
+
+
+    initialize();
+
 </script>
+
 </body>
 </html>
